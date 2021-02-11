@@ -12,6 +12,12 @@
  *@param fileName - a string containing the name of the GPX file
 **/
 
+/**
+  Name : Julien C-Fournier
+  Student ID#: 1083079
+  email : jcarpe03@uoguelph.ca
+**/
+
 GPXData* parseExtraData(xmlNode *data){
   char *content = (char *)data->children->content;
   GPXData *newData = malloc(sizeof(GPXData) + (strlen(content) + 1) * sizeof(char));
