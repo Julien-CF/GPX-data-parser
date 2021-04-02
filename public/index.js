@@ -195,67 +195,118 @@ jQuery(document).ready(function() {
        let latitudeStart = document.getElementById("latitudeStart").value;
        let latitudeEnd = document.getElementById("latitudeEnd").value;
 
+       let check = 1;
 
        let delta = document.getElementById("delta").value;
+
+       if($.isNumeric(longitudeStart) && longitudeStart > -181 && longitudeStart < 181){
+         console.log(longitudeStart);
+       } else {
+         alert("longitudes starting point is invalid");
+         check = 0;
+       }
+
+       if($.isNumeric(longitudeEnd) && longitudeEnd > -181 && longitudeEnd < 181){
+         console.log(longitudeEnd);
+       } else {
+         alert("longitudes ending point is invalid");
+         check = 0;
+       }
+
+
+       if($.isNumeric(latitudeStart) && latitudeStart > -91 && latitudeStart < 91){
+         console.log(latitudeStart);
+       } else {
+         alert("latitudes starting point is invalid");
+         check = 0;
+       }
+
+
+       if($.isNumeric(latitudeEnd) && latitudeEnd > -91 && latitudeEnd < 91){
+         console.log(latitudeEnd);
+       } else {
+         alert("latitudes ending point is invalid");
+         check = 0;
+       }
+
+
+       if($.isNumeric(delta) && delta > -1){
+        console.log(delta);
+       } else {
+        alert("delta is invalid");
+        check = 0;
+       }
+
+
+
+
+       if(fileList.length == 0){
+         check = 0;
+         alert("No files are available");
+       }
        // console.log(longitude);
        // console.log(latitude);
        // console.log(delta);
 
-       $.ajax({
-         type: 'get',            //Request type
-         dataType: 'json',       //Data type - we will use JSON for almost everything
-         url: '/getPathsBetween',   //The server endpoint we are connecting to
-         data: {
-           listFiles: fileList,
-           longitudeStart: longitudeStart,
-           longitudeEnd: longitudeEnd,
-           latitudeStart: latitudeStart,
-           latitudeEnd: latitudeEnd,
-           delta: delta
-         },
-         success: function(data){
-           trackList = data.trackList;
-           routeList = data.routeList;
 
-           let i = 1;
-           for(track of data.trackList){
-             let newElement = $(`
-                 <tr>
-                   <th>track ${i}</th>
-                   <th>${track.name}</th>
-                   <th>${track.numPoints}</th>
-                   <th>${track.len}</th>
-                   <th>${track.loop}</th>
-                 </tr>
-               `);
+       if(check == 1){
+         $.ajax({
+           type: 'get',            //Request type
+           dataType: 'json',       //Data type - we will use JSON for almost everything
+           url: '/getPathsBetween',   //The server endpoint we are connecting to
+           data: {
+             listFiles: fileList,
+             longitudeStart: longitudeStart,
+             longitudeEnd: longitudeEnd,
+             latitudeStart: latitudeStart,
+             latitudeEnd: latitudeEnd,
+             delta: delta
+           },
+           success: function(data){
+             trackList = data.trackList;
+             routeList = data.routeList;
 
-               let body = $("table.inBetweenTable tbody");
+             let i = 1;
+             for(track of data.trackList){
+               let newElement = $(`
+                   <tr>
+                     <th>track ${i}</th>
+                     <th>${track.name}</th>
+                     <th>${track.numPoints}</th>
+                     <th>${track.len}</th>
+                     <th>${track.loop}</th>
+                   </tr>
+                 `);
 
-               body.append(newElement);
-               i++;
-            }
-            i = 0;
-            for(route of data.routeList){
-              let newElement = $(`
-                  <tr>
-                    <th>route ${i}</th>
-                    <th>${route.name}</th>
-                    <th>${route.numPoints}</th>
-                    <th>${route.len}</th>
-                    <th>${route.loop}</th>
-                  </tr>
-                `);
-                let body = $("table.inBetweenTable tbody");
+                 let body = $("table.inBetweenTable tbody");
 
-                body.append(newElement);
-                i++;
-            }
-         },
-         fail: function(error) {
-           $('#blah').html("On page load, received error from server");
-           console.log(error);
-         }
-       });
+                 body.append(newElement);
+                 i++;
+              }
+              i = 0;
+              for(route of data.routeList){
+                let newElement = $(`
+                    <tr>
+                      <th>route ${i}</th>
+                      <th>${route.name}</th>
+                      <th>${route.numPoints}</th>
+                      <th>${route.len}</th>
+                      <th>${route.loop}</th>
+                    </tr>
+                  `);
+                  let body = $("table.inBetweenTable tbody");
+
+                  body.append(newElement);
+                  i++;
+              }
+           },
+           fail: function(error) {
+             $('#blah').html("On page load, received error from server");
+             console.log(error);
+           }
+         });
+       }
+
     });
 
     let dropdown = document.getElementById("files");
@@ -353,7 +404,7 @@ jQuery(document).ready(function() {
             console.log(error);
           }
         });
-      } 
+      }
 
     });
 
