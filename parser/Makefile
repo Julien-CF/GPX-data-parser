@@ -19,7 +19,7 @@ endif
 parser: $(BIN)libgpxparser.so
 
 $(BIN)libgpxparser.so: $(PARSER_OBJ_FILES) $(BIN)LinkedListAPI.o
-	gcc -shared -o $(BIN)libgpxparser.so $(PARSER_OBJ_FILES) $(BIN)LinkedListAPI.o -lxml2 -lm
+	gcc -shared -o ../libgpxparser.so $(PARSER_OBJ_FILES) $(BIN)LinkedListAPI.o -lxml2 -lm
 
 #Compiles all files named GPX*.c in src/ into object files, places all coresponding GPX*.o files in bin/
 $(BIN)GPX%.o: $(SRC)GPX%.c $(INC)LinkedListAPI.h $(INC)GPX*.h
@@ -32,7 +32,7 @@ $(BIN)LinkedListAPI.o: $(SRC)LinkedListAPI.c $(INC)LinkedListAPI.h
 	$(CC) $(CFLAGS) -c -fpic -I$(INC) $(SRC)LinkedListAPI.c -o $(BIN)LinkedListAPI.o
 
 clean:
-	rm -rf $(BIN)StructListDemo $(BIN)xmlExample $(BIN)*.o $(BIN)*.so
+	rm -rf $(BIN)StructListDemo $(BIN)xmlExample $(BIN)*.o $(BIN)*.so ../libgpxparser.so
 
 #This is the target for the in-class XML example
 xmlExample: $(SRC)libXmlExample.c
@@ -43,8 +43,14 @@ xmlExample: $(SRC)libXmlExample.c
 
 StructListDemo: $(BIN)StructListDemo.o $(BIN)liblist.so
 	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -o $(BIN)StructListDemo $(BIN)StructListDemo.o  -llist
-	
+
 $(BIN)StructListDemo.o: $(SRC)StructListDemo.c
 	$(CC) $(CFLAGS) -I$(INC) -c $(SRC)StructListDemo.c -o $(BIN)StructListDemo.o
+
+main: $(BIN)main.o $(BIN)libgpxparser.so
+	$(CC) $(CFLAG) $(LDFLAGS) -L$(BIN) -Wl,-rpath,../ -o main $(BIN)main.o -lgpxparser -lxml2
+
+$(BIN)main.o: $(SRC)main.c $(INC)GPXParser.h
+	$(CC) $(CFLAGS) -I$(XML_PATH) -I$(INC) -Wl,-rpath,../ -c $(SRC)main.c -o $(BIN)main.o
 
 ###################################################################################################

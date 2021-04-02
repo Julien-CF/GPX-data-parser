@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GPS Viewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="CHANGE ME">
+    <meta name="keywords" content="CHANGE ME">
+    <meta name="author" content="CHANGE ME">
+    <!-- Load jquery, bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <!-- Custom CSS End -->
+</head>
+<body>
+    <h1 style="text-align:center">GPS Viewer</h1>
+    <h4 style="text-align:left">File log Panel</h4>
+    <table class="file-logPanel table-responsive">
+      <thead>
+        <tr>
+          <th>Filename (click to download)</th>
+          <th>Version</th>
+          <th>Creator</th>
+          <th>Number of Waypoints</th>
+          <th>Number of routes</th>
+          <th>Number of tracks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <form ref='uploadForm'
+    id='uploadForm'
+      action='/upload'
+      method='post'
+      encType="multipart/form-data">
+      <div class="form-group">
+        <input type="file" name="uploadFile" class="btn btn-secondary">
+        <input type='submit' value='Upload' class="btn btn-secondary">
+      </div>
+      </form>
+
+
+
+<h4 style="text-align:left">GPX View Panel</h4>
+
+<label for="files">List of Files</label>
+
+<select name="files" id="files" class="dropDownOption">
+  <option value="options"></option>
+</select>
+
+<table class="view-panel table-responsive">
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Name</th>
+      <th>Number of Points</th>
+      <th>Length</th>
+      <th>Loop</th>
+    </tr>
+  </thead>
+  <tbody id="list">
+    <tr>
+    </tr>
+  </tbody>
+</table>
+
+<h4 style="text-align:left">Add route to file</h4>
+<form id='createRoute' class="createRoute">
+  <label for="routeName">Input new routes name</label>
+  <input type="text" id="routeName" name="routeName">
+  <input type="submit" value="addRoute" class="addRoute"></input><br>
+</form>
+
+<form id='createPoint' class="createPoint">
+  <label for="lon">Input longitude</label>
+  <input type="text" id="lon" name="lon"><br>
+  <label for="lat">Input lattitude</label>
+  <input type="text" id="lat" name="lat"><br>
+  <input type="submit" value="addWaypoint" class="addPoint"></input>
+</form>
+
+<h4 style="text-align:left">Rename</h4>
+
+<form id='rename' class="rename">
+  <label for=NCDropdown>Select route/track to rename</label>
+  <select id="NCDropdown" name="OreName"></select>
+  <label for="nameChange">Input new Name</label>
+  <input type="text" id="nameChange" name="reName">
+  <input type="submit" value="submit" class="submit"></input>
+</form>
+
+<h4 style="text-align:left">Create GPX doc</h4>
+
+<form id='create' class="create">
+  <label for="filename">Input new filename</label>
+  <input type="text" id="filename" name="filename">
+  <label for="creator">Input creator</label>
+  <input type="text" id="creator" name="creator">
+  <input type="submit" value="create" class="create"></input>
+</form>
+
+<h4 style="text-align:left">Find Path</h4>
+<form id='search' class="search" onsubmit="return false">
+
+  <label for="longitude">Input longitude</label>
+  <input type="text" id="longitudeStart" name="longitude">
+  <input type="text" id="longitudeEnd" name="longitude"><br>
+
+
+  <label for="latitude">Input latitude</label>
+  <input type="text" id="latitudeStart" name="latitude">
+  <input type="text" id="latitudeEnd" name="latitude"><br>
+
+
+  <label for="delta">Input accuracy</label>
+  <input type="text" id="delta" name="delta"><br>
+
+  <input type="submit" value="search" class="searchForm"></input>
+
+</form>
+
+
+<table class="inBetweenTable table-responsive">
+  <thead>
+    <tr>
+      <th>Component</th>
+      <th>Name</th>
+      <th>Number of Points</th>
+      <th>Length</th>
+      <th>Loop</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    </tr>
+  </tbody>
+</table>
+
+    <!-- Leave me at the bottom of body -->
+    <script src="/index.js"></script>
+</body>
+</html>
