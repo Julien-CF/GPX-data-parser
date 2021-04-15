@@ -427,7 +427,7 @@ app.get('/status', async function(req , res){
 
       file = rows.length;
       route = rows2.length;
-      point = rows2.length;
+      point = rows3.length;
 
 
 
