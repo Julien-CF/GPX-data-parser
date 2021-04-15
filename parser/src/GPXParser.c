@@ -20,8 +20,68 @@
   email : jcarpe03@uoguelph.ca
 **/
 
+char *pointToJSON(Waypoint * pt){
+  if(pt == NULL){
+    return "{}";
+  }
+    char *final = malloc(sizeof(char) * 100000);
+    char *name;
+    double lat, lon;
+
+    if(strlen(pt->name) < 1){
+      name = NULL;
+    } else {
+      name = pt->name;
+    }
+
+    lat = pt->latitude;
+    lon = pt->longitude;
+    sprintf(final, "{\"name\":\"%s\",\"latitude\":%lf,\"longitude\":%lf}", name, lat, lon);
+    // printf("%s\n", final);
+    return final;
+}
+
+char *pointListToJSON(List *list){
+  if(list == NULL){
+    return "[]";
+  }
+  char *final = malloc(sizeof(char)* 1000000);
+  final[0] = '\0';
+  strcat(final, "[");
+  ListIterator iterator = createIterator(list);
+  void *elem;
+  int i = 0;
+  while((elem = nextElement(&iterator)) != NULL){
+    char *temp = pointToJSON((Waypoint *)elem);
+    strcat(final, temp);
+    if(i < getLength(list) - 1){
+      strcat(final, ",");
+    }
+    i++;
+    free(temp);
+  }
+  strcat(final, "]");
+  return final;
+}
+
+char *getPointInfo(char *fileName, int index){
+
+    GPXdoc *doc = createGPXdoc(fileName);
+
+    ListIterator routeList = createIterator(doc->routes);
+    void *rteElem;
+
+    for(int i = 0; i < index; i++){
+      rteElem = nextElement(&routeList);
+    }
+    char *string = pointListToJSON(((Route *)rteElem)->waypoints);
+    // printf("%s\n", string);
+    return(string);
+}
+
 char *tracksInPath(double latitudeStart, double longitudeStart, double latitudeEnd, double longitudeEnd, int delta, char *filename){
   GPXdoc *newdoc = createGPXdoc(filename);
+  printf("\nLat start : %lf, long start: %lf, lat end: %lf, long end: %lf\n\n", latitudeStart, longitudeStart, latitudeEnd, longitudeEnd);
   List *inBetween = getTracksBetween(newdoc, latitudeStart, longitudeStart, latitudeEnd, longitudeEnd, delta);
 
   char *json = trackListToJSON((const List *)inBetween);
@@ -33,6 +93,8 @@ char *tracksInPath(double latitudeStart, double longitudeStart, double latitudeE
 
 char *routesInPath(double latitudeStart, double longitudeStart, double latitudeEnd, double longitudeEnd, int delta, char *filename){
   GPXdoc *newdoc = createGPXdoc(filename);
+  printf("\nLat start : %lf, long start: %lf, lat end: %lf, long end: %lf\n\n", latitudeStart, longitudeStart, latitudeEnd, longitudeEnd);
+
   List *inBetween = getRoutesBetween(newdoc, latitudeStart, longitudeStart, latitudeEnd, longitudeEnd, delta);
 
   char *json = routeListToJSON((const List *)inBetween);
@@ -55,58 +117,88 @@ Waypoint *createWaypoint(double latitude, double longitude){
 }
 
 int addRoutetoGpxDoc(char *filename, char *routeName, char *waypoints){
-  GPXdoc *newdoc = createGPXdoc(filename);
-  char *newwpts = malloc(sizeof(char) * strlen(waypoints) + 100);
-  strcpy(newwpts, waypoints);
-  Route * newRoute = malloc(sizeof(Route) * 1);
-  newRoute->waypoints = initializeList(&waypointToString, &deleteWaypoint, &compareWaypoints);
-  newRoute->otherData = initializeList(&gpxDataToString, &deleteGpxData, &compareGpxData);
-  int index = 0;
-  for(int i = 0; i < strlen(waypoints); i++){
-    if(waypoints[i] == '|'){
-      index++;
-    }
+   GPXdoc *newdoc = createGPXdoc(filename);
+   char *newwpts = malloc(sizeof(char) * strlen(waypoints) + 100);
+   strcpy(newwpts, waypoints);
+   Route * newRoute = malloc(sizeof(Route) * 1);
+   newRoute->waypoints = initializeList(&waypointToString, &deleteWaypoint, &compareWaypoints);
+   newRoute->otherData = initializeList(&gpxDataToString, &deleteGpxData, &compareGpxData);
+   int index = 0;
+   for(int i = 0; i < strlen(waypoints); i++){
+     if(waypoints[i] == '|'){
+       index++;
+     }
+   }
+   newRoute->name = malloc(sizeof(char ) * strlen(routeName) + 1);
+   newRoute->name = routeName;
+   printf("%s\n", newRoute->name);
+
+   if(strlen(waypoints) != 0){
+     int ind = 0;
+       for(int i = 0; i < index; i++){
+         char section[300];
+             char lonString[300];
+             char latString[300];
+             int sectionIndex = 0;
+             while(waypoints[ind] != '|'){
+               section[sectionIndex++] = waypoints[ind];
+               ind++;
+             }
+             section[sectionIndex] = '\0';
+             printf("%s\n", section);
+             int index2 = 0;
+             int lonIndex = 0;
+             while(section[index2] != ' '){
+               // printf("%c", section[index2]);
+               lonString[lonIndex++] = section[index2];
+               index2++;
+             }
+             lonString[lonIndex] = '\0';
+             printf("\n");
+             index2++;
+             int latIndex = 0;
+             while(section[index2] != '\0'){
+               // printf("%c", section[index2]);
+               latString[latIndex++] = section[index2];
+               index2++;
+             }
+             latString[latIndex] = '\0';
+
+             printf("\n");
+
+             ind++;
+
+
+             double longitude = atof(lonString);
+             double latitude = atof(latString);
+
+             printf("%lf %lf\n", longitude, latitude);
+
+             Waypoint *newWpt2 = createWaypoint(latitude, longitude);
+             insertBack(newRoute->waypoints, newWpt2);
+       }
+       insertBack(newdoc->routes, newRoute);
+       if(!writeGPXdoc(newdoc, filename)){
+           return -1;
+       }
   }
-  newRoute->name = malloc(sizeof(char ) * strlen(routeName) + 1);
-  newRoute->name = routeName;
-  printf("%s\n", newRoute->name);
-
-if(strlen(waypoints) != 0){
-  char *wpt = strtok(newwpts, "|");
-  char *lon = strtok(wpt, " ");
-  char *lat = strtok(NULL, "\0");
-
-  double longitude = atof(lon);
-  double latitude = atof(lat);
-
-  Waypoint *newWpt = createWaypoint(longitude, latitude);
-  insertBack(newRoute->waypoints, newWpt);
-
-  for(int i = 0; i < index - 1; i++){
-    char *wpt2 = malloc(sizeof(char) * 10000);
-    wpt2 = strtok(wpt, "|");
-    lon = strtok(wpt2, " ");
-    lat = strtok(wpt2, "\0");
-    // printf("%s %s\n", lon, lat);
-    double longitude2 = atof(lon);
-    double latitude2 = atof(lat);
-    Waypoint *newWpt2 = createWaypoint(longitude2, latitude2);
-    insertBack(newRoute->waypoints, newWpt2);
-  }
+  int length = round10(getRouteLen(newRoute));
+  printf("HELOOOOO %d\n", length);
+  return length;
 }
-  insertBack(newdoc->routes, newRoute);
-  // printf("MADE IT\n");
-  // printf("%s\n", GPXdocToString(newdoc));
-  // printf("MADE IT2\n");
 
 
-  if(!writeGPXdoc(newdoc, filename)){
-    return 0;
-  }
+// int addRoutetoGpxDoc(char *filename, char *routeName, char *waypoints){
 
-  // printf("%d\n", index);
-  return 1;
-}
+// //
+// //   // printf("MADE IT\n");
+// //   // printf("%s\n", GPXdocToString(newdoc));
+// //   // printf("MADE IT2\n");
+// //
+// //
+// //
+//
+// }
 
 int createNewGpxDoc(char *filename, char *creator){
 
@@ -1244,7 +1336,7 @@ double dist(double lat1, double lon1, double lat2, double lon2){
   dy = sin(lon1) * cos(lat1);
 
   double final = asin(sqrt(dx * dx + dy * dy + dz * dz) / 2) * 2 * R;
-  printf("%f\n", final);
+  printf("\n\n%f\n\n", final);
   return final;
 }
 
@@ -1475,9 +1567,11 @@ List* getRoutesBetween(const GPXdoc* doc, float sourceLat, float sourceLong, flo
       last = nextElement(&waypointListLast);
     }
     double firstDist = dist(sourceLat, sourceLong, ((Waypoint *)first)->latitude, ((Waypoint *)first)->longitude);
+    printf("\n\ndest Lat: %lf, destLong: %lf, last lat: %lf, last long: %lf\n\n", destLat, destLong, ((Waypoint *)last)->latitude, ((Waypoint *)last)->longitude);
+
     double lastDist = dist(destLat, destLong, ((Waypoint *)last)->latitude, ((Waypoint *)last)->longitude);
 
-    printf("%lf %lf\n", firstDist, lastDist);
+    // printf("%lf %lf\n", firstDist, lastDist);
 
     if(firstDist <= delta && lastDist <= delta){
       insertBack(routeList, (Route *)rteElem);

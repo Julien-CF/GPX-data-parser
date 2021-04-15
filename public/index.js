@@ -1,8 +1,12 @@
-function RENAMEMELATER(dropdown){
-  $("table.view-panel tbody tr").remove();
-  $("#NCDropdown option").remove();
+function RENAMEMELATER(selected, pathDropdown){
+  // $(".dropDownOption").val(selected);
+
+  if (pathDropdown === "NCDropdown") {
+    $("table.view-panel tbody tr").remove();
+  }
+  $(".NCDropdown#" + pathDropdown + " option").remove();
   for(file of fileList){
-    if(file.fileName === dropdown.value){
+    if(file.fileName === selected){
       console.log(file.fileName, file.numTracks);
       $.ajax({
         type: 'get',            //Request type
@@ -25,37 +29,41 @@ function RENAMEMELATER(dropdown){
                   <th>${track.loop}</th>
                 </tr>
               `);
-              $('#NCDropdown').append($('<option>',{
+              $('.track#' + pathDropdown).append($('<option>',{
                 value: "track" + " " + i,
                 text: track.name
               }));
+
               let x = track.name;
               let filename = document.getElementById("files");
 
-              newElement.find("button").click(() => {
-                console.log("button pressed: " + x);
-                $.ajax({
-                  type: 'get',            //Request type
-                  dataType: 'json',       //Data type - we will use JSON for almost everything
-                  url: '/getTrackXtraData',   //The server endpoint we are connecting to
-                  data: {
-                    file: filename.value,
-                    routeName: x
-                  },
-                  success: function(data){
-                    for(indData of data.list){
-                      alert("Name : " + indData.name + "\n" + "Value : " + indData.value);
-                    }
-                  },
-                  fail: function(error) {
-                    $('#blah').html("On page load, received error from server");
-                    console.log(error);
-                  }
-                });
-              });
-              let body = $("table.view-panel tbody");
 
-              body.append(newElement);
+              if (pathDropdown === "NCDropdown") {
+                newElement.find("button").click(() => {
+                  console.log("button pressed: " + x);
+                  $.ajax({
+                    type: 'get',            //Request type
+                    dataType: 'json',       //Data type - we will use JSON for almost everything
+                    url: '/getTrackXtraData',   //The server endpoint we are connecting to
+                    data: {
+                      file: filename.value,
+                      routeName: x
+                    },
+                    success: function(data){
+                      for(indData of data.list){
+                        alert("Name : " + indData.name + "\n" + "Value : " + indData.value);
+                      }
+                    },
+                    fail: function(error) {
+                      $('#blah').html("On page load, received error from server");
+                      console.log(error);
+                    }
+                  });
+                });
+                let body = $("table.view-panel tbody");
+
+                body.append(newElement);
+              }
               i++;
           }
           i = 1;
@@ -69,36 +77,38 @@ function RENAMEMELATER(dropdown){
                   <th>${route.loop}</th>
                 </tr>
               `);
-              $('#NCDropdown').append($('<option>',{
-                value: "route" + " " + i,
-                text: route.name
-              }));
-              let body = $("table.view-panel tbody");
-              let x = route.name;
-              let filename = document.getElementById("files");
-              newElement.find("button").click(() => {
-                // console.log("button pressed: " + x + filename.value);
-                $.ajax({
-                  type: 'get',            //Request type
-                  dataType: 'json',       //Data type - we will use JSON for almost everything
-                  url: '/getRouteXtraData',   //The server endpoint we are connecting to
-                  data: {
-                    file: filename.value,
-                    routeName: x
-                  },
-                  success: function(data){
-                    for(indData of data.list){
-                      alert("Name : " + indData.name + "\n" + "Value : " + indData.value);
+                $("#" + pathDropdown).append($('<option>',{
+                  value: "route" + " " + i,
+                  text: route.name
+                }));
+              if (pathDropdown === "NCDropdown") {
+                let body = $("table.view-panel tbody");
+                let x = route.name;
+                let filename = document.getElementById("files");
+                newElement.find("button").click(() => {
+                  // console.log("button pressed: " + x + filename.value);
+                  $.ajax({
+                    type: 'get',            //Request type
+                    dataType: 'json',       //Data type - we will use JSON for almost everything
+                    url: '/getRouteXtraData',   //The server endpoint we are connecting to
+                    data: {
+                      file: filename.value,
+                      routeName: x
+                    },
+                    success: function(data){
+                      for(indData of data.list){
+                        alert("Name : " + indData.name + "\n" + "Value : " + indData.value);
+                      }
+                    },
+                    fail: function(error) {
+                      $('#blah').html("On page load, received error from server");
+                      console.log(error);
                     }
-                  },
-                  fail: function(error) {
-                    $('#blah').html("On page load, received error from server");
-                    console.log(error);
-                  }
+                  });
                 });
-              });
 
-              body.append(newElement);
+                body.append(newElement);
+              }
               i++;
           }
         },
@@ -109,6 +119,24 @@ function RENAMEMELATER(dropdown){
       });
     }
   }
+}
+
+function Status(){
+  jQuery.ajax({
+      type: 'get',            //Request type
+      dataType: 'json',       //Data type - we will use JSON for almost everything
+      url: '/status',   //The server endpoint we are connecting to
+      data: {
+      },
+      success: function (data) {
+          alert("Database has " + data.file + " files, " + data.route + " routes, and " + data.point + " points.");
+      },
+      fail: function(error) {
+          // Non-200 return, do something with error
+          $('#blah').html("On page load, received error from server");
+          console.log(error);
+      }
+  });
 }
 
 // Put all onload AJAX calls here, and event listeners
@@ -160,7 +188,7 @@ jQuery(document).ready(function() {
 
                 let body = $("table.file-logPanel tbody");
 
-                $('#files.dropDownOption').append($('<option>',{
+                $('.dropDownOption').append($('<option>',{
                   value: file.fileName,
                   text: file.fileName
                 }));
@@ -178,6 +206,79 @@ jQuery(document).ready(function() {
             console.log(error);
         }
     });
+
+      $("#login").submit((e) =>{
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let database = document.getElementById("database").value;
+
+        console.log(username);
+        console.log(password);
+        console.log(database);
+
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/login',   //The server endpoint we are connecting to
+          data: {
+            username: username,
+            password: password,
+            database: database
+          },
+          success: function(data){
+            console.log("logged in");
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      });
+
+      document.getElementById("addDataBase").addEventListener("click", function(){
+        console.log(fileList);
+
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/addToDatabase',   //The server endpoint we are connecting to
+          data: {
+            fileList: fileList
+          },
+          success: function(data){
+            console.log("database updated");
+            Status();
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      });
+
+      document.getElementById("displayStatus").addEventListener("click", function(){
+        Status();
+      });
+
+
+      document.getElementById("clearDatabase").addEventListener("click", function(){
+
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/clearDatabase',   //The server endpoint we are connecting to
+          data: {
+          },
+          success: function(data){
+            console.log("database cleared");
+            Status();
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      });
 
 
     // let searchPathForm = document.getElementById("search");
@@ -309,10 +410,256 @@ jQuery(document).ready(function() {
 
     });
 
-    let dropdown = document.getElementById("files");
+    function addRoutes(routesList, filename){
+      $("table.databaseRouteTable tbody tr").remove();
 
-    dropdown.addEventListener("change", () => {
-      RENAMEMELATER(dropdown);
+      for(route of routesList){
+        let newElement = $(`
+            <tr>
+              <th>${route.route_name}</th>
+              <th>${route.route_len}</th>
+              <th>${filename}</th>
+            </tr>
+          `);
+          let body = $("table.databaseRouteTable tbody");
+
+          body.append(newElement);
+      }
+    }
+
+    function addPoints(pointsList){
+      console.log("getting here");
+      $("table.databasePointTable tbody tr").remove();
+
+      for(point of pointsList){
+        console.log(point);
+        let newElement = $(`
+            <tr>
+              <th>${point.point_name}</th>
+              <th>${point.latitude}</th>
+              <th>${point.longitude}</th>
+              <th>${point.route_id}</th>
+              <th>${point.point_index}</th>
+            </tr>
+          `);
+          console.log(newElement);
+          let body = $("table.databasePointTable tbody");
+
+          body.append(newElement);
+      }
+    }
+
+
+    let query1 = $(".Query1");
+
+    query1.click(() => {
+      $.ajax({
+        type: 'get',            //Request type
+        dataType: 'json',       //Data type - we will use JSON for almost everything
+        url: '/Query1',   //The server endpoint we are connecting to
+        data: {
+          sort: $(".sortingDropDown").val()
+        },
+        success: function(data){
+          console.log(data.list.length);
+          addRoutes(data.list, "All");
+          // for(let route of data.list){
+          //   console.log(route.route_name + " " + route.route_len);
+          // }
+        },
+        fail: function(error) {
+          $('#blah').html("On page load, received error from server");
+          console.log(error);
+        }
+      });
+    });
+
+    let query2 = $(".Query2");
+
+    query2.click(() => {
+      let filename = document.getElementById("filesQuery").value;
+
+      if(filename === "options"){
+        alert("Please select a filename");
+      }else{
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/Query2',   //The server endpoint we are connecting to
+          data: {
+            sort: $(".sortingDropDown").val(),
+            filename: filename
+          },
+          success: function(data){
+            console.log(data);
+            // console.log(data.list.length);
+            if(data.status == 1){
+              addRoutes(data.list[0], filename);
+              // for(let route of data.list[0]){
+              //   console.log(route.route_name + " " + route.route_len);
+              // }
+            } else {
+              alert("File selected is not yet in Database please update accordingly");
+            }
+
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      }
+
+    });
+
+    let query3 = $(".Query3");
+
+    query3.click(() => {
+      let filename = document.getElementById("filesQuery").value;
+
+      if(filename === "options"){
+        alert("Please select a filename");
+      }else{
+        let route = $("#NCDropdownQuery option:selected").text();
+
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/Query3',   //The server endpoint we are connecting to
+          data: {
+            route: route,
+            filename: filename
+          },
+          success: function(data){
+            console.log(data);
+            // console.log(data.list.length);
+            if(data.status == 1){
+              addPoints(data.list[0]);
+              for(let point of data.list[0]){
+                console.log(point.point_index + " " + point.route_id);
+              }
+            } else {
+              alert("File or route selected is not yet in Database please update accordingly");
+            }
+
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      }
+
+    });
+
+    let query4 = $(".Query4");
+
+    query4.click(() => {
+      let filename = document.getElementById("filesQuery").value;
+      console.log($(".sortingDropDown").val());
+      let sort = $(".sortingDropDown").val();
+      if(filename === "options"){
+        alert("Please select a filename");
+      }else{
+
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/Query4',   //The server endpoint we are connecting to
+          data: {
+            sort: sort,
+            filename: filename
+          },
+          success: function(data){
+            console.log(data);
+            // console.log(data.list.length);
+            let pointList = [];
+            if(data.status == 1){
+              for(let route of data.list){
+                // console.log(route);
+                for(let i = 0; i < route.length; i++){
+                  pointList.push(route[i]);
+                  console.log(route[i]);
+                }
+              }
+              console.log(pointList);
+              addPoints(pointList);
+            } else {
+              alert("File selected is not yet in Database please update accordingly");
+            }
+
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      }
+
+    });
+
+    let query5 = $(".Query5");
+
+    query5.click(() => {
+      let filename = document.getElementById("filesQuery").value;
+
+      if(filename === "options"){
+        alert("Please select a filename");
+      }else{
+        $.ajax({
+          type: 'get',            //Request type
+          dataType: 'json',       //Data type - we will use JSON for almost everything
+          url: '/Query5',   //The server endpoint we are connecting to
+          data: {
+            sort: $(".sortingDropDown").val(),
+            filename: filename,
+            n: document.getElementById("N amount").value,
+            place: $(".topOrBottom option:selected").text()
+          },
+          success: function(data){
+            console.log(data);
+            // console.log(data.list.length);
+            if(data.status == 1){
+              listRoutes = data.list[0];
+              if($(".sortingDropDown").val() === "name"){
+                listRoutes.sort(function(a, b){
+                  if(a.route_name.toUpperCase() < b.route_name.toUpperCase()){
+                    return -1;
+                  }
+                  if(a.route_name.toUpperCase() > b.route_name.toUpperCase()){
+                    return 1;
+                  }
+                  return 0;
+                });
+              } else if($(".sortingDropDown").val() === "length"){
+                listRoutes.sort(function(a, b){
+                  return (a.route_len - b.route_len);
+                });
+              }
+              addRoutes(listRoutes, filename);
+              // for(let route of listRoutes){
+              //   console.log(route.route_name + " " + route.route_len);
+              // }
+            } else {
+              alert("File selected is not yet in Database please update accordingly");
+            }
+
+          },
+          fail: function(error) {
+            $('#blah').html("On page load, received error from server");
+            console.log(error);
+          }
+        });
+      }
+
+    });
+
+
+
+    let dropdowns = $(".dropDownOption");
+
+    dropdowns.change(() => {
+      RENAMEMELATER(event.target.value, $(event.target).attr("for"));
     });
 
     let form = $("#rename");
@@ -347,7 +694,8 @@ jQuery(document).ready(function() {
             newName: newName
           },
           success: function(data){
-            RENAMEMELATER(dropdown);
+            RENAMEMELATER($("#files").val(), $("#files").attr("for"));
+            Status();
           },
           fail: function(error) {
             $('#blah').html("On page load, received error from server");
@@ -433,7 +781,7 @@ jQuery(document).ready(function() {
 
       let newName = document.getElementById('routeName').value;
 
-      if(dropdown.value === "options"){
+      if($("#files").val() === "options"){
         alert("Error: No file selected");
       } else{
         $.ajax({
@@ -442,14 +790,16 @@ jQuery(document).ready(function() {
           url: '/addRoute',   //The server endpoint we are connecting to
           data: {
             data: listNewWaypoints,
-            filename: dropdown.value,
+            filename: $("#files").val(),
             newName: newName
           },
           success: function(data){
-            if(data.result == 0){
+            if(data.result == -1){
               alert("Something went wrong adding new route");
             } else{
               console.log("added route");
+              Status();
+
               location.reload();
             }
           },

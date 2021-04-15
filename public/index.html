@@ -19,6 +19,11 @@
 <body>
     <h1 style="text-align:center">GPS Viewer</h1>
     <h4 style="text-align:left">File log Panel</h4>
+    <button type = "button" value="addDataBase" class="addDataBase" id="addDataBase">Add Files to DataBase</button>
+    <button type = "button" value="clearDatabase" class="clearDatabase" id="clearDatabase">Clear Database</button>
+    <button type = "button" value="displayStatus" class="displayStatus" id="displayStatus">Display Status</button>
+
+
     <table class="file-logPanel table-responsive">
       <thead>
         <tr>
@@ -54,7 +59,7 @@
 
 <label for="files">List of Files</label>
 
-<select name="files" id="files" class="dropDownOption">
+<select name="files" id="files" for="NCDropdown" class="dropDownOption">
   <option value="options"></option>
 </select>
 
@@ -93,7 +98,7 @@
 
 <form id='rename' class="rename">
   <label for=NCDropdown>Select route/track to rename</label>
-  <select id="NCDropdown" name="OreName"></select>
+  <select id="NCDropdown" name="OreName" class="NCDropdown route track"></select>
   <label for="nameChange">Input new Name</label>
   <input type="text" id="nameChange" name="reName">
   <input type="submit" value="submit" class="submit"></input>
@@ -145,6 +150,96 @@
     </tr>
   </tbody>
 </table>
+
+<h2 style="text-align:left">SQL Stuff</h4>
+
+
+<h4 style="text-align:left">Login</h4>
+
+<form id='login' class="login" onsubmit="return false">
+
+  <label for="username">Input username</label>
+  <input type="text" id="username" name="username"><br>
+
+  <label for="password">Input password</label>
+  <input type="text" id="password" name="password"><br>
+
+  <label for="database">Input database</label>
+  <input type="text" id="database" name="database"><br>
+
+  <input type="submit" value="login" class="loginForm"></input>
+
+</form>
+
+<h4 style="text-align:left">Queries</h4>
+
+
+<label for="queryFiles">List of Files</label>
+<select name="queryFiles" id="filesQuery" for="NCDropdownQuery" class="dropDownOption">
+  <option value="options"></option>
+</select><br>
+
+<label for=NCDropdownQuery>Select route</label>
+<select id="NCDropdownQuery" name="OreName" class="NCDropdown route"></select><br>
+
+<label for="sortingOptions">Sorting options</label>
+<select name="sortingOptions" id="SortingOptions" class="sortingDropDown">
+  <option value="name">Name</option>
+  <option value="length">Length</option>
+</select><br>
+
+<label for="password">Display all routes</label>
+<button type = "button" value="Query1" class="Query1" id="Query1">Display</button><br>
+<label for="password">Display all routes of File</label>
+<button type = "button" value="Query2" class="Query2" id="Query2">Display</button><br>
+<label for="password">Display all points of Route</label>
+<button type = "button" value="Query3" class="Query3" id="Query3">Display</button><br>
+<label for="password">Display all points of file</label>
+<button type = "button" value="Query4" class="Query4" id="Query4">Display</button><br>
+<select name="topOrBottom" id="topOrBottom" class="topOrBottom">
+  <option value="TOP">TOP</option>
+  <option value="BOTTOM">BOTTOM</option>
+</select><br>
+<label for="password">Display N shortest/longest routes of File</label>
+<button type = "button" value="Query5" class="Query5" id="Query5">Display</button>
+<label for="N amount">Input N</label>
+<input type="text" id="N amount" name="N amount"><br>
+
+<h4 style="text-align:left">Routes</h4>
+
+<table class="databaseRouteTable table-responsive">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Length</th>
+      <th>Filename</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    </tr>
+  </tbody>
+</table>
+
+<h4 style="text-align:left">Points</h4>
+
+<table class="databasePointTable table-responsive">
+  <thead>
+    <tr>
+      <th>Point name</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>route ID</th>
+      <th>point index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+    </tr>
+  </tbody>
+</table>
+
+
 
     <!-- Leave me at the bottom of body -->
     <script src="/index.js"></script>
